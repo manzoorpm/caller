@@ -199,7 +199,7 @@ export default function DialPad() {
         </Box>
       )}
 
-      {/* Phone Number Display */}
+      {/* Phone Number Display - Editable */}
       <Box
         sx={{
           mb: 3,
@@ -211,18 +211,47 @@ export default function DialPad() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
+          position: "relative",
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "monospace",
-            color: phoneNumber ? "text.primary" : "text.disabled",
-            mb: 1,
+        <TextField
+          value={phoneNumber}
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^\d+*#]/g, "");
+            if (value.length <= 15) {
+              setPhoneNumber(value);
+              setValidationError("");
+            }
           }}
-        >
-          {phoneNumber || "Enter number"}
-        </Typography>
+          placeholder="Enter number"
+          disabled={isCallActive}
+          variant="standard"
+          InputProps={{
+            disableUnderline: true,
+            sx: {
+              fontSize: "2rem",
+              fontFamily: "monospace",
+              textAlign: "center",
+              fontWeight: 500,
+              color: phoneNumber ? "text.primary" : "text.disabled",
+              "& input": {
+                textAlign: "center",
+                padding: 0,
+              },
+              "& input::placeholder": {
+                textAlign: "center",
+                opacity: 0.6,
+              },
+            },
+          }}
+          sx={{
+            width: "100%",
+            mb: 1,
+            "& .MuiInputBase-input": {
+              cursor: isCallActive ? "default" : "text",
+            },
+          }}
+        />
 
         {isCallActive && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -245,14 +274,11 @@ export default function DialPad() {
           </Box>
         )}
 
-        <IconButton
-          onClick={handleBackspace}
-          disabled={!phoneNumber || isCallActive}
-          size="small"
-          sx={{ mt: 1 }}
-        >
-          <BackspaceIcon />
-        </IconButton>
+        {!isCallActive && phoneNumber && (
+          <IconButton onClick={handleBackspace} size="small" sx={{ mt: 1 }}>
+            <BackspaceIcon />
+          </IconButton>
+        )}
       </Box>
 
       {/* Error Messages */}
@@ -386,29 +412,6 @@ export default function DialPad() {
           </Button>
         </Stack>
       )}
-
-      {/* Quick Dial Input */}
-      <Box sx={{ mt: 3 }}>
-        <TextField
-          fullWidth
-          label="Or paste phone number"
-          placeholder="+1234567890"
-          disabled={isCallActive || !isReady}
-          value={phoneNumber}
-          onChange={(e) => {
-            const value = e.target.value.replace(/[^\d+*#]/g, "");
-            if (value.length <= 15) {
-              setPhoneNumber(value);
-              setValidationError("");
-            }
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-            },
-          }}
-        />
-      </Box>
 
       {/* Setup Instructions */}
       {!isReady && (
